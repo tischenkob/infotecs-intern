@@ -31,8 +31,7 @@ public class StorageController {
   @PostMapping("/records/{key}")
   public Response createRecord(@PathVariable String key,
                                @RequestParam("value") String value,
-                               @RequestParam(value = "ttl", required = false) Integer ttl
-                              ) {
+                               @RequestParam(value = "ttl", required = false) Integer ttl) {
     if (ttl != null && ttl < 1) {
       return new Response(Status.FAILURE, "ttl must be greater than 0");
     }
