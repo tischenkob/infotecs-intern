@@ -1,4 +1,4 @@
-package ru.infotecs.intern;
+package ru.infotecs.intern.storage;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,14 +7,16 @@ import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
-import static ru.infotecs.intern.StorageController.Response.Status;
+import static ru.infotecs.intern.storage.StorageController.Response.Status;
 
 @RestController
 @RequestMapping("store")
@@ -23,14 +25,13 @@ public class StorageController {
 
   private final StorageService service;
   @Setter
-  @Value("${dump.file.name:storage_dump.properties}")
+  @Value("${dump.file.name:storage_dump.txt}")
   private String dumpFileName;
 
   @PostMapping("/records/{key}")
-  public Response createRecord(
-      @PathVariable String key,
-      @RequestParam("value") String value,
-      @RequestParam(value = "ttl", required = false) Integer ttl
+  public Response createRecord(@PathVariable String key,
+                               @RequestParam("value") String value,
+                               @RequestParam(value = "ttl", required = false) Integer ttl
                               ) {
     if (ttl != null && ttl < 1) {
       return new Response(Status.FAILURE, "ttl must be greater than 0");
@@ -53,18 +54,16 @@ public class StorageController {
                                : new Response(Status.FAILURE, "Record not Found.");
   }
 
-  @ResponseBody
-  @GetMapping(value = "dump", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-  public ResponseEntity<File> getDump() throws IOException {
-    File file = service.getDumpFile();
-    var response = ResponseEntity.ok()
-                                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                                         "attachment; filename=\"" + file.getName() + "\"")
-                                 .body(file);
+  @GetMapping(value = "dump")
+  public void getDump(HttpServletResponse response) throws IOException {
+    File file = service.createDumpFile();
+    response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+    response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
+                       "attachment; filename=\"" + dumpFileName + "\"");
+    FileCopyUtils.copy(new FileInputStream(file), response.getOutputStream());
     if (!file.delete()) {
       throw new IOException("Temporary dump file %s could not be deleted".formatted(file.getName()));
     }
-    return response;
   }
 
   @PostMapping("load")

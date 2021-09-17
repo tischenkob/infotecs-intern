@@ -4,6 +4,11 @@
       "name": "key.default-ttl",
       "type": "java.lang.String",
       "description": "Default value for TTL if it is not specified in a request."
+    },
+    {
+      "name": "dump.file.name",
+      "type": "java.lang.String",
+      "description": "Name of the dump file downloaded at /dump."
     }
   ]
 }

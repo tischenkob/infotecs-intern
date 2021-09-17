@@ -1,4 +1,4 @@
-package ru.infotecs.intern;
+package ru.infotecs.intern.storage;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.Nullable;
@@ -35,8 +35,8 @@ class StorageService {
     return storage.remove(key);
   }
 
-  public File getDumpFile() throws IOException {
-    Map<String, String> stringsMap = storage.getInnerMap()
+  public File createDumpFile() throws IOException {
+    Map<String, String> stringsMap = storage.asMap()
                                             .entrySet()
                                             .stream()
                                             .collect(toMap(
