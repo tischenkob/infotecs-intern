@@ -20,7 +20,7 @@ class SimpleTimedStorage implements TimedStorage {
   private int DEFAULT_TTL;
 
   public SimpleTimedStorage(TimedExecutor provider) {
-    provider.runEverySecond(this::cleanup);
+    provider.runEverySecond(this::processExpired);
   }
 
   @Override
@@ -53,7 +53,7 @@ class SimpleTimedStorage implements TimedStorage {
     return Collections.unmodifiableMap(storage);
   }
 
-  private void cleanup() {
+  private void processExpired() {
     Iterator<Holder> iterator = storage.keySet().iterator();
     while (iterator.hasNext()) {
       var key = iterator.next();
