@@ -8,7 +8,7 @@
 - Класс хранилища -- `SimpleTimedStorage`. Хранилище основано на `java.util.HashMap` и в качестве ключа использует класс `Holder(String key, int ttl)`. Так как ключи должны быть иммутабельны, `Holder::hashcode` использует `Holder.key::hashcode`, игнорируя поле `ttl`.  
 - Каждую секунду `ScheduledTimedExecutor` выполняет метод `TimedExecutor::executeEverySecond`, который в свою очередь вызывает  `TimedStorage::processExpired`, который декрементирует `ttl` у всех ключей и удаляет записи, достигшие `ttl == 0`. 
 - Для тестирования используется другая реализация интерфейса `TimedExecutor`, `MockTimedExecutor`, которая управляется ручным вызовом метода `TimedExecutor::executeEverySecond`, чтобы изолировать тестирование отдельных классов.  
-####Запросы на `localhost:8080/store`:
+#### Запросы на `localhost:8080/store`:
 - GET, POST, DELETE `/records/{key}[?value=&ttl=]` управление записями
 - GET `/dump` скачивание дампа
 - POST `/load` отправление дампа 
